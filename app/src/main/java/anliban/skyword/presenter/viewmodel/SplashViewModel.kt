@@ -18,15 +18,15 @@ class SplashViewModel(
     private val scope = CoroutineScope(Dispatchers.Main)
     private val _login = MutableLiveData<User>()
     val login: LiveData<User> = _login
-    private val _failLogin = MutableLiveData<Nothing>()
-    val failLogin: LiveData<Nothing> = _failLogin
+    private val _loginFailure = MutableLiveData<Nothing>()
+    val loginFailure: LiveData<Nothing> = _loginFailure
 
-    fun firebaseInit() {
+    fun login() {
         scope.launch {
-            val result = repository.attemptLogin()
+            val result = repository.login()
             when (result.status) {
                 Status.SUCCESS -> _login.value = result.data
-                Status.ERROR -> _failLogin.value = null
+                Status.ERROR -> _loginFailure.value = null
             }
         }
     }
