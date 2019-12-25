@@ -32,7 +32,7 @@ class LocalDataSource(private val pref: PrefModel) : ILocalDataSource {
         }
 
     override val user: User
-        get() = User(pref.email!!, pref.password!!, pref.fcmToken)
+        get() = User(pref.email!!, pref.password!!)
 }
 
 class PrefModel(context: Context) : PreferenceModel(context) {

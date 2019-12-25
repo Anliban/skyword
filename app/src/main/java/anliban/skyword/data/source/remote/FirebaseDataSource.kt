@@ -1,13 +1,10 @@
 package anliban.skyword.data.source.remote
 
-import anliban.skyword.data.Resource
+import anliban.skyword.data.Result
 import anliban.skyword.data.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.iid.FirebaseInstanceId
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +14,7 @@ import kotlin.coroutines.suspendCoroutine
 
 interface IFirebaseInstanceDataSource {
 
-    suspend fun getToken(): Resource<String>
+    suspend fun getToken(): Result<String>
 }
 
 class FirebaseInstanceDataSource(
@@ -25,14 +22,14 @@ class FirebaseInstanceDataSource(
 ) : IFirebaseInstanceDataSource {
 
     override suspend fun getToken() = withContext(dispatcher) {
-        return@withContext suspendCoroutine<Resource<String>> { continuation ->
+        return@withContext suspendCoroutine<Result<String>> { continuation ->
             FirebaseInstanceId.getInstance().instanceId
                 .addOnCompleteListener {
                     if (it.isSuccessful && it.result != null) {
                         val token = it.result!!.token
-                        continuation.resume(Resource.success(token))
+                        continuation.resume(Result.success(token))
                     } else {
-                        continuation.resume(Resource.error(it.exception))
+                        continuation.resume(Result.error(it.exception))
                     }
                 }
         }
@@ -41,9 +38,9 @@ class FirebaseInstanceDataSource(
 
 interface IFirebaseAuthDataSource {
 
-    suspend fun createUser(email: String, password: String): Resource<FirebaseUser>
+    suspend fun createUser(user: User): Result<FirebaseUser>
 
-    suspend fun login(email: String, password: String): Resource<FirebaseUser>
+    suspend fun login(user: User): Result<FirebaseUser>
 
     suspend fun logout()
 }
@@ -54,37 +51,31 @@ class FirebaseAuthDataSource(
 
     private val auth = FirebaseAuth.getInstance()
 
-    override suspend fun createUser(email: String, password: String) = withContext(dispatcher) {
-        return@withContext suspendCoroutine<Resource<FirebaseUser>> { continuation ->
-            auth.createUserWithEmailAndPassword(email, password)
+    override suspend fun createUser(user: User) = withContext(dispatcher) {
+        return@withContext suspendCoroutine<Result<FirebaseUser>> { continuation ->
+            auth.createUserWithEmailAndPassword(user.email, user.password)
                 .addOnCompleteListener {
-                    if (it.isSuccessful && it.result != null) {
-                        val user = it.result!!.user
-                        if (user != null) {
-                            continuation.resume(Resource.success(user))
-                        } else {
-                            continuation.resume(Resource.error(it.exception))
+                    when {
+                        it.isSuccessful && it.result?.user != null -> {
+                            val firebaseUser = it.result?.user!!
+                            continuation.resume(Result.success(firebaseUser))
                         }
-                    } else {
-                        continuation.resume(Resource.error(it.exception))
+                        else -> continuation.resume(Result.error(it.exception))
                     }
                 }
         }
     }
 
-    override suspend fun login(email: String, password: String) = withContext(dispatcher) {
-        return@withContext suspendCoroutine<Resource<FirebaseUser>> { continuation ->
-            auth.signInWithEmailAndPassword(email, password)
+    override suspend fun login(user: User) = withContext(dispatcher) {
+        return@withContext suspendCoroutine<Result<FirebaseUser>> { continuation ->
+            auth.signInWithEmailAndPassword(user.email, user.password)
                 .addOnCompleteListener {
-                    if (it.isSuccessful && it.result != null) {
-                        val user = it.result!!.user
-                        if (user != null) {
-                            continuation.resume(Resource.success(user))
-                        } else {
-                            continuation.resume(Resource.error(it.exception))
+                    when {
+                        it.isSuccessful && it.result?.user != null -> {
+                            val firebaseUser = it.result?.user!!
+                            continuation.resume(Result.success(firebaseUser))
                         }
-                    } else {
-                        continuation.resume(Resource.error(it.exception))
+                        else -> continuation.resume(Result.error(it.exception))
                     }
                 }
         }
@@ -97,7 +88,7 @@ class FirebaseAuthDataSource(
 
 interface IFirebaseDbDataSource {
 
-    suspend fun saveUser(user: User)
+    suspend fun saveUser(user: User): Result<User>
 }
 
 class FirebaseDbDataSource(
