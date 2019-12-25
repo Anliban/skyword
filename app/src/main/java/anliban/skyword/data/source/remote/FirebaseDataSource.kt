@@ -106,8 +106,17 @@ class FirebaseDbDataSource(
 
     private val database = FirebaseDatabase.getInstance().reference
 
-    override suspend fun saveUser(user: User) {
-        val params = mapOf("/users/${user.email}" to user.token)
-        database.updateChildren(params)
+    override suspend fun saveUser(user: User) = withContext(dispatcher) {
+        return@withContext suspendCoroutine<Result<User>> { continuation ->
+            database.child("users")
+                .child(user.convertedEmail())
+                .setValue(user)
+                .addOnCompleteListener {
+                    when (it.isSuccessful) {
+                        true -> continuation.resume(Result.success(user))
+                        false -> continuation.resume(Result.error(it.exception))
+                    }
+                }
+        }
     }
 }
