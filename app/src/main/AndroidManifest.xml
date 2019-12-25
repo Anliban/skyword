@@ -13,10 +13,13 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity"/>
+        <activity android:name=".presenter.view.LoginActivity" />
+        <activity android:name=".presenter.view.JoinActivity" />
+        <activity android:name=".presenter.view.SendMessageActivity" />
 
         <service
             android:name=".data.source.remote.AppFirebaseMessagingService"
