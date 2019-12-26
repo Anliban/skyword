@@ -28,6 +28,7 @@ class SplashActivity : AppCompatActivity(), IDataBinding {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding
         viewModel.login()
         viewModel.login.observe(this, Observer {
             startActivity(Intent(this, SendMessageActivity::class.java))

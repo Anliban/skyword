@@ -36,7 +36,10 @@ class LoginActivity : AppCompatActivity(), IDataBinding {
             val password = binding.pwEdit.text.toString()
             viewModel.login(User(email, password))
         }
-
+        binding.joinBtn.setOnClickListener {
+            startActivity(Intent(this, JoinActivity::class.java))
+            finish()
+        }
         viewModel.login.observe(this, Observer {
             startActivity(Intent(this, SendMessageActivity::class.java))
             finish()

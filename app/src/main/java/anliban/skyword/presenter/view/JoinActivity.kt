@@ -19,7 +19,7 @@ import anliban.skyword.util.toast
 
 class JoinActivity : AppCompatActivity(), IDataBinding {
 
-    override val resourceId = R.layout.activity_login
+    override val resourceId = R.layout.activity_join
     private val binding by lazy { bind<ActivityJoinBinding>(this) }
 
     private val localDataSource by lazy { LocalDataSource(PrefModel(this)) }
@@ -33,12 +33,16 @@ class JoinActivity : AppCompatActivity(), IDataBinding {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding.text.text = "회원가입"
-        viewModel.join(User("aa@naver.com", "bbaasd"))
+        binding.joinBtn.setOnClickListener {
+            val email = binding.emailEdit.text.toString()
+            val password = binding.pwEdit.text.toString()
+            viewModel.join(User(email, password))
+        }
         viewModel.success.observe(this, Observer {
             startActivity(Intent(this, SendMessageActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             })
+            finish()
         })
         viewModel.message.observe(this, Observer {
             toast(it)
