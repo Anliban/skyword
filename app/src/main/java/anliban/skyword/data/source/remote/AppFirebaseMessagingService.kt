@@ -1,10 +1,14 @@
 package anliban.skyword.data.source.remote
 
+import anliban.skyword.data.source.local.PrefModel
 import com.google.firebase.messaging.FirebaseMessagingService
 
 class AppFirebaseMessagingService : FirebaseMessagingService() {
 
-    override fun onNewToken(p0: String) {
-        super.onNewToken(p0)
+    private val pref by lazy { PrefModel(applicationContext) }
+
+    override fun onNewToken(token: String) {
+        super.onNewToken(token)
+        pref.fcmToken = token
     }
 }
