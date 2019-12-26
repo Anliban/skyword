@@ -27,7 +27,9 @@ class JoinRepository(
         if (authResult.status == Status.ERROR) {
             return@withContext Result.error(authResult.error?.e)
         }
-        val dbResult = dbDataSource.saveUser(user)
+        val dbResult = dbDataSource.saveUser(
+            User(user.email, user.password, localDataSource.fcmToken)
+        )
         if (dbResult.status == Status.ERROR) {
             return@withContext Result.error(dbResult.error?.e)
         }
